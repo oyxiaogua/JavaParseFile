@@ -1,9 +1,9 @@
 package com.xiaogua.parse.basic;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,9 +21,35 @@ public class BufferedReaderWriterParseFileServiceImpl implements InterfaceParseF
 
 	public void parseFile(String filePath, String encoding, String fileSep, String destFilePath,
 			String destFileEncoding, String destFileSep, int batchSaveSize, boolean hasHeader) throws Exception {
+		BufferedWriter bw = ProcessFileCommonUtil.getBufferedWriter(destFilePath, destFileEncoding);
+		BufferedReader br = ProcessFileCommonUtil.getBufferedReader(filePath, encoding);
+		String str = null;
+		String[] dataArr = null;
+		boolean isValid = false;
+		int totalNum = 0;
+		String[] rtnDataArr = new String[7];
+		while ((str = br.readLine()) != null) {
+			dataArr = str.split(fileSep);
+			isValid = ProcessFileCommonUtil.isValidateData(dataArr, rtnDataArr);
+			if (!isValid) {
+				continue;
+			}
+			writeDataToBufferedWriter(bw, destFileSep, rtnDataArr);
+			totalNum++;
+			if (totalNum % batchSaveSize == 0) {
+				bw.flush();
+				log.info("flush to file ,totalNum={}", totalNum);
+			}
+		}
+		bw.flush();
+		IOUtils.closeQuietly(bw);
+		IOUtils.closeQuietly(br);
+	}
+
+	public void parseFilePart(String filePath, String encoding, String fileSep, String destFilePath,
+			String destFileEncoding, String destFileSep, int batchSaveSize, boolean hasHeader) throws Exception {
 		final int batchQuerySize = 3000;
-		BufferedWriter bw = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(destFilePath), destFileEncoding));
+		BufferedWriter bw = ProcessFileCommonUtil.getBufferedWriter(destFilePath, destFileEncoding);
 		int start = 1;
 		int end = start + batchQuerySize;
 		List<String[]> dataArrList = new ArrayList<String[]>(batchSaveSize);
@@ -82,15 +108,19 @@ public class BufferedReaderWriterParseFileServiceImpl implements InterfaceParseF
 		String[] dataArr;
 		while (it.hasNext()) {
 			dataArr = it.next();
-			sb.setLength(0);
-			sb.append(dataArr[0]);
-			for (int i = 1, len = dataArr.length; i < len; i++) {
-				sb.append(destFileSep).append(dataArr[i]);
-			}
-			bw.write(sb.toString());
-			bw.write("\r\n");
+			writeDataToBufferedWriter(bw, destFileSep, dataArr);
 		}
 		bw.flush();
+	}
+
+	private void writeDataToBufferedWriter(BufferedWriter bw, String destFileSep, String[] dataArr) throws IOException {
+		sb.setLength(0);
+		sb.append(dataArr[0]);
+		for (int i = 1, len = dataArr.length; i < len; i++) {
+			sb.append(destFileSep).append(dataArr[i]);
+		}
+		bw.write(sb.toString());
+		bw.write("\r\n");
 	}
 
 }

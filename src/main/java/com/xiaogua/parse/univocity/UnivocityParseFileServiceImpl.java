@@ -23,10 +23,10 @@ public class UnivocityParseFileServiceImpl implements InterfaceParseFileService 
 
 	public void parseFile(String filePath, String encoding, String fileSep, String destFilePath,
 			String destFileEncoding, String destFileSep, int batchSaveSize, boolean hasHeader) throws Exception {
-		parseFileWithPartIndex(filePath, encoding, fileSep, destFilePath, destFileEncoding, destFileSep,
-				batchSaveSize, hasHeader);
+		parseFileWithPartIndex(filePath, encoding, fileSep, destFilePath, destFileEncoding, destFileSep, batchSaveSize,
+				hasHeader);
 	}
-	
+
 	public void parseFileWithPartIndex(String filePath, String encoding, String fileSep, String destFilePath,
 			String destFileEncoding, String destFileSep, int batchSaveSize, boolean hasHeader) throws Exception {
 		List<String[]> dataArrList = new ArrayList<String[]>(batchSaveSize);
@@ -35,7 +35,7 @@ public class UnivocityParseFileServiceImpl implements InterfaceParseFileService 
 		writerSettings.getFormat().setDelimiter(destFileSep.charAt(0));
 		CsvWriter writer = new CsvWriter(bw, writerSettings);
 
-		Integer[] filedIndexArr=new Integer[]{1,3,6,10,15,21,28};
+		Integer[] filedIndexArr = new Integer[] { 1, 3, 6, 10, 15, 21, 28 };
 		CsvParserSettings parserSettings = new CsvParserSettings();
 		parserSettings.setHeaderExtractionEnabled(false);
 		parserSettings.setSkipEmptyLines(true);
@@ -55,7 +55,6 @@ public class UnivocityParseFileServiceImpl implements InterfaceParseFileService 
 		IOUtils.closeQuietly(bw);
 		IOUtils.closeQuietly(br);
 	}
-
 
 	public void parseFileWithIteratorStyle(String filePath, String encoding, String fileSep, String destFilePath,
 			String destFileEncoding, String destFileSep, int batchSaveSize, boolean hasHeader) throws Exception {
@@ -137,8 +136,8 @@ public class UnivocityParseFileServiceImpl implements InterfaceParseFileService 
 		}
 	}
 
-	
-	private void processRowDataWithPartField(String[] row, List<String[]> dataArrList, CsvWriter writer, int batchSaveSize) {
+	private void processRowDataWithPartField(String[] row, List<String[]> dataArrList, CsvWriter writer,
+			int batchSaveSize) {
 		boolean isValidate = ProcessFileCommonUtil.isValidateDataWithPartField(row, dataArrList);
 		if (!isValidate) {
 			return;

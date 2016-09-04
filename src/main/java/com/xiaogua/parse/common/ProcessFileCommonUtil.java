@@ -151,15 +151,17 @@ public class ProcessFileCommonUtil {
 		if (!isValid) {
 			return false;
 		}
-		String[] rtnDataArr = new String[7];
-		rtnDataArr[0] = dataArr[1];
-		rtnDataArr[1] = dataArr[3];
-		rtnDataArr[2] = dataArr[6];
-		rtnDataArr[3] = dataArr[10];
-		rtnDataArr[4] = dataArr[15];
-		rtnDataArr[5] = dataArr[21];
-		rtnDataArr[6] = dataArr[28];
-		dataArrList.add(rtnDataArr);
+		if (dataArrList != null) {
+			String[] rtnDataArr = new String[7];
+			rtnDataArr[0] = dataArr[1];
+			rtnDataArr[1] = dataArr[3];
+			rtnDataArr[2] = dataArr[6];
+			rtnDataArr[3] = dataArr[10];
+			rtnDataArr[4] = dataArr[15];
+			rtnDataArr[5] = dataArr[21];
+			rtnDataArr[6] = dataArr[28];
+			dataArrList.add(rtnDataArr);
+		}
 		return true;
 	}
 
@@ -201,6 +203,54 @@ public class ProcessFileCommonUtil {
 			return false;
 		}
 		dataArrList.add(dataArr);
+		return true;
+	}
+
+	public static boolean isValidateData(String[] dataArr, String[] rtnDataArr) {
+		if (dataArr.length < 29) {
+			return false;
+		}
+		// 姓名
+		boolean isValid = ChineseNameCheck.isValidCnName(dataArr[1]);
+		if (!isValid) {
+			return false;
+		}
+		// 时间
+		isValid = DateCheck.isValidDate(dataArr[3], DateCheck.YYYY_MM_DD_HH_MM_SS);
+		if (!isValid) {
+			return false;
+		}
+		// 号码
+		isValid = PhoneNumCheck.isValidPhoneNum(dataArr[6]);
+		if (!isValid) {
+			return false;
+		}
+		// email
+		isValid = EmailCheck.isValidEmail(dataArr[10]);
+		if (!isValid) {
+			return false;
+		}
+		// id
+		isValid = IDCheck.isValidID(dataArr[15]);
+		if (!isValid) {
+			return false;
+		}
+		isValid = EntpCodeCheck.isValidEntpCode(dataArr[21]);
+		if (!isValid) {
+			return false;
+		}
+		isValid = LuhnCheck.isValidLuhn(dataArr[28]);
+		if (!isValid) {
+			return false;
+		}
+
+		rtnDataArr[0] = dataArr[1];
+		rtnDataArr[1] = dataArr[3];
+		rtnDataArr[2] = dataArr[6];
+		rtnDataArr[3] = dataArr[10];
+		rtnDataArr[4] = dataArr[15];
+		rtnDataArr[5] = dataArr[21];
+		rtnDataArr[6] = dataArr[28];
 		return true;
 	}
 

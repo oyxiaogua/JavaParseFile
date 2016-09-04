@@ -30,11 +30,13 @@ public class TableSawParseFileServiceImpl implements InterfaceParseFileService {
 			columnTypeArr[i] = ColumnType.CATEGORY;
 		}
 		Table table = CsvReader.read(columnTypeArr, hasHeader, fileSep.charAt(0), filePath);
+		long start=System.currentTimeMillis();
 		Table rtnTable = table.selectWhere(QueryHelper.allOf(new ChineseNameCheckFilter(QueryHelper.column("name")),
 				new DateCheckFilter(QueryHelper.column("createDate"), DateCheck.YYYY_MM_DD_HH_MM_SS),
 				new PhoneNumCheckFilter(QueryHelper.column("phone")), new EmailCheckFilter(QueryHelper.column("email")),
 				new IDCheckFilter(QueryHelper.column("id")), new EntpCodeCheckFilter(QueryHelper.column("entpCode")),
 				new LuhnCheckFilter(QueryHelper.column("luhnCode"))));
+		log.info("filter cost time={}",(System.currentTimeMillis()-start));
 		//log.info("rtnTable rowCount={}", rtnTable.rowCount());
 		CategoryColumn nameColumn = rtnTable.categoryColumn("name");
 		CategoryColumn createDateColumn = rtnTable.categoryColumn("createDate");
@@ -45,6 +47,7 @@ public class TableSawParseFileServiceImpl implements InterfaceParseFileService {
 		CategoryColumn luhnCodeColumn = rtnTable.categoryColumn("luhnCode");
 		BufferedWriter bw = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(destFilePath), destFileEncoding));
+		int totalNum = 0;
 		for (int rowIndex : rtnTable) {
 			sb.setLength(0);
 			sb.append(nameColumn.getString(rowIndex)).append(destFileSep);
@@ -56,6 +59,11 @@ public class TableSawParseFileServiceImpl implements InterfaceParseFileService {
 			sb.append(luhnCodeColumn.getString(rowIndex));
 			bw.write(sb.toString());
 			bw.write("\r\n");
+			totalNum++;
+			if (totalNum % batchSaveSize == 0) {
+				bw.flush();
+				//log.info("flush to file ,totalNum={}", totalNum);
+			}
 		}
 		IOUtils.closeQuietly(bw);
 	}

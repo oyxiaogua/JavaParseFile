@@ -40,7 +40,7 @@ public class TestGenerateFileService {
 		InterfaceGenerateFileService fileService = new GenerateFileServiceImpl();
 		String filePath = "e:/test_tmp/0904/randomFile.txt";
 		String encoding = "UTF-8";
-		int countNum = 200000;
+		int countNum = 500000;
 		fileService.generateFile(nameRandomizer, dateRandomizer, phoneRandomizer, emailRandomizer, idRandomizer,
 				strRandomizer, filePath, encoding, separator, countNum);
 	}
